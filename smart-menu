@@ -1,0 +1,26 @@
+const FIREBASE_DB_URL = 'https://smart-menu-db-272bc-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+function getStoreIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('store') || 'bontree-coffee').trim();
+}
+
+function getStorefrontEndpoint(storeId = getStoreIdFromUrl()) {
+  return `${FIREBASE_DB_URL}/stores/${encodeURIComponent(storeId)}/storefront.json`;
+}
+
+async function loadStorefrontData(storeId = getStoreIdFromUrl()) {
+  const res = await fetch(getStorefrontEndpoint(storeId), { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+async function saveStorefrontData(data, storeId = getStoreIdFromUrl()) {
+  const res = await fetch(getStorefrontEndpoint(storeId), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
