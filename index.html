@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>واجهة المتجر الرقمية والمنيو — Digital Storefront</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Arabic & English Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: 'var(--brand-primary, #c89d54)',
+              light: 'var(--brand-light, #e6c483)',
+              dark: 'var(--brand-dark, #9a7332)',
+              soft: 'var(--brand-soft, rgba(200, 157, 84, 0.14))',
+              glow: 'var(--brand-glow, rgba(200, 157, 84, 0.35))',
+            },
+          },
+          keyframes: {
+            floatSlow: {
+              '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+              '50%': { transform: 'translate3d(0, -10px, 0) scale(1.02)' },
+            },
+            orbDriftA: {
+              '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+              '50%': { transform: 'translate3d(28px, -24px, 0) scale(1.08)' },
+            },
+            orbDriftB: {
+              '0%, 100%': { transform: 'translate3d(0, 0, 0) scale(1)' },
+              '50%': { transform: 'translate3d(-32px, 22px, 0) scale(1.06)' },
+            },
+            goldSweep: {
+              '0%': { transform: 'translateX(-120%)' },
+              '100%': { transform: 'translateX(220%)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.55', transform: 'scale(1)' },
+              '50%': { opacity: '0.95', transform: 'scale(1.05)' },
+            },
+          },
+          animation: {
+            floatSlow: 'floatSlow 6s ease-in-out infinite',
+            orbDriftA: 'orbDriftA 13s ease-in-out infinite',
+            orbDriftB: 'orbDriftB 16s ease-in-out infinite',
+            goldSweep: 'goldSweep 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+            pulseGlow: 'pulseGlow 3s ease-in-out infinite',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --brand-primary: #c89d54;
+      --brand-light: #e6c483;
+      --brand-dark: #9a7332;
+      --brand-soft: rgba(200, 157, 84, 0.14);
+      --brand-glow: rgba(200, 157, 84, 0.35);
+      --pointer-x: 50%;
+      --pointer-y: 25%;
+      --scroll-progress: 0%;
+      --font-ar: 'Cairo', sans-serif;
+      --font-en: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    html[lang="ar"] body {
+      font-family: var(--font-ar);
+    }
+
+    html[lang="en"] body {
+      font-family: var(--font-en);
+    }
+
+    body {
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+
+    .scroll-progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.5px;
+      z-index: 60;
+      background: rgba(148, 163, 184, 0.14);
+      pointer-events: none;
+    }
+
+    .scroll-progress-bar {
+      height: 100%;
+      width: var(--scroll-progress, 0%);
+      background: linear-gradient(90deg, var(--brand-dark), var(--brand-primary), var(--brand-light));
+      box-shadow: 0 0 12px var(--brand-glow);
+      transition: width 0.1s linear;
+    }
+
+    .ambient-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        radial-gradient(650px circle at var(--pointer-x) var(--pointer-y), var(--brand-soft), transparent 62%),
+        radial-gradient(circle at 12% 14%, rgba(200, 157, 84, 0.13), transparent 44%),
+        radial-gradient(circle at 88% 82%, rgba(56, 189, 248, 0.08), transparent 46%);
+    }
+
+    .dark .ambient-backdrop {
+      background:
+        radial-gradient(700px circle at var(--pointer-x) var(--pointer-y), rgba(230, 196, 131, 0.14), transparent 60%),
+        radial-gradient(circle at 15% 12%, rgba(200, 157, 84, 0.16), transparent 45%),
+        radial-gradient(circle at 85% 84%, rgba(99, 102, 241, 0.11), transparent 48%);
+    }
+
+    .tactile-card {
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow:
+        0 14px 34px -12px rgba(15, 23, 42, 0.1),
+        0 4px 12px -4px rgba(15, 23, 42, 0.05),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.35s ease;
+    }
+
+    .dark .tactile-card {
+      background: rgba(17, 24, 39, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 18px 40px -14px rgba(0, 0, 0, 0.55),
+        0 6px 16px -6px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+    }
+
+    .tactile-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--brand-primary);
+      box-shadow:
+        0 22px 44px -14px rgba(15, 23, 42, 0.15),
+        0 0 24px -6px var(--brand-glow),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+    }
+
+    .dark .tactile-card:hover {
+      box-shadow:
+        0 24px 48px -14px rgba(0, 0, 0, 0.7),
+        0 0 28px -6px var(--brand-glow),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .tactile-btn {
+      position: relative;
+      overflow: hidden;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.25s ease,
+                  background-color 0.25s ease;
+    }
+
+    .tactile-btn::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+      transform: translateX(-160%) skewX(-20deg);
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .tactile-btn:hover {
+      transform: translateY(-3px) scale(1.015);
+    }
+
+    .tactile-btn:hover::after {
+      transform: translateX(300%) skewX(-20deg);
+    }
+
+    .tactile-btn:active {
+      transform: translateY(1px) scale(0.975);
+    }
+
+    .btn-primary-lux {
+      background: linear-gradient(135deg, var(--brand-light) 0%, var(--brand-primary) 52%, var(--brand-dark) 100%);
+      box-shadow:
+        0 10px 24px -6px var(--brand-glow),
+        0 4px 10px -3px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+    }
+
+    .btn-primary-lux:hover {
+      box-shadow:
+        0 16px 32px -6px var(--brand-glow),
+        0 6px 14px -4px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-surface-lux {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(203, 213, 225, 0.7);
+      box-shadow:
+        0 8px 20px -8px rgba(15, 23, 42, 0.12),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .dark .btn-surface-lux {
+      background: rgba(30, 41, 59, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 10px 22px -8px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-surface-lux:hover {
+      border-color: var(--brand-primary);
+      box-shadow:
+        0 14px 26px -8px rgba(15, 23, 42, 0.16),
+        0 0 18px -6px var(--brand-glow);
+    }
+
+    .reveal-item {
+      opacity: 0;
+      transform: translate3d(0, 22px, 0) scale(0.98);
+      transition: opacity 0.68s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.68s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+
+    .reveal-item.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    .tab-pill-active {
+      background: linear-gradient(135deg, var(--brand-light), var(--brand-primary), var(--brand-dark));
+      color: #ffffff;
+      box-shadow:
+        0 8px 20px -5px var(--brand-glow),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    #welcomeSplash {
+      transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.85s ease;
+    }
+
+    #welcomeSplash.splash-hidden {
+      opacity: 0;
+      transform: scale(1.04);
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--brand-primary);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal-item {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .animate-floatSlow,
+      .animate-orbDriftA,
+      .animate-orbDriftB,
+      .animate-pulseGlow {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-brand/25">
+
+  <!-- Top Scroll Progress Bar -->
+  <div class="scroll-progress-track" aria-hidden="true">
+    <div class="scroll-progress-bar"></div>
+  </div>
+
+  <!-- Vibrant Ambient Aurora Background & Floating Orbs -->
+  <div class="ambient-backdrop" aria-hidden="true">
+    <div
+      id="parallaxOrbA"
+      class="animate-orbDriftA absolute -top-28 -right-24 w-72 sm:w-96 h-72 sm:h-96 rounded-full blur-3xl opacity-45 dark:opacity-30"
+      style="background: radial-gradient(circle, var(--brand-light), transparent 70%);"
+    ></div>
+    <div
+      id="parallaxOrbB"
+      class="animate-orbDriftB absolute top-1/3 -left-28 w-80 sm:w-[28rem] h-80 sm:h-[28rem] rounded-full blur-3xl opacity-35 dark:opacity-25"
+      style="background: radial-gradient(circle, rgba(245, 158, 11, 0.35), transparent 70%);"
+    ></div>
+    <div
+      class="animate-pulseGlow absolute bottom-10 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-25 dark:opacity-20"
+      style="background: radial-gradient(circle, var(--brand-primary), transparent 72%);"
+    ></div>
+  </div>
+
+  <!-- Welcome Splash Screen -->
+  <div
+    id="welcomeSplash"
+    role="dialog"
+    aria-modal="true"
+    aria-label="رسالة الترحيب"
+    onclick="dismissSplash()"
+    class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/95 backdrop-blur-2xl text-white select-none cursor-pointer"
+  >
+    <div
+      class="absolute w-80 h-80 rounded-full blur-3xl opacity-25 pointer-events-none"
+      style="background: radial-gradient(circle, var(--brand-light), transparent 70%);"
+    ></div>
+
+    <div class="relative z-10 max-w-md w-full text-center space-y-6">
+      <div class="mx-auto w-24 h-24 rounded-3xl p-[1.5px] bg-gradient-to-br from-brand-light via-brand to-brand-dark shadow-2xl animate-floatSlow">
+        <div class="w-full h-full rounded-[22px] bg-slate-950/90 flex items-center justify-center overflow-hidden">
+          <img
+            id="splashAvatar"
+            src="https://placehold.co/200x200/1e293b/e6c483?text=LUX"
+            alt="شعار المتجر"
+            onerror="this.src='https://placehold.co/200x200/1e293b/e6c483?text=LUX';"
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-brand/35 bg-white/[0.04] backdrop-blur-xl px-6 py-7 shadow-[0_24px_60px_-15px_rgba(0,0,0,0.75)] space-y-3.5">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand/15 border border-brand/30 text-brand-light text-xs tracking-wide">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l1.9 5.8L20 10.7l-5.8 1.9L12 18.5l-1.9-5.9L4 10.7l5.8-1.9L12 3z" />
+          </svg>
+          <span id="splashStoreName">دار النخبة للضيافة والتميز</span>
+        </div>
+
+        <p
+          id="splashWelcomeText"
+          class="text-base sm:text-lg leading-relaxed text-amber-50/95 font-medium"
+        >
+          شرفٌ لنا حضوركم ويسعدنا استقبالكم — حيث تلتقي الفخامة بدفء الضيافة، نتمنى لكم تجربة استثنائية تليق بذائقتكم الرفيعة.
+        </p>
+
+        <div class="pt-3">
+          <div class="h-1 w-full rounded-full bg-white/10 overflow-hidden">
+            <div
+              id="splashProgressBar"
+              class="h-full w-full rounded-full bg-gradient-to-r from-brand-dark via-brand-light to-brand animate-goldSweep"
+            ></div>
+          </div>
+          <p class="mt-2.5 text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-brand-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            <span id="splashHintText">جاري تهيئة الواجهة بأناقة...</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Utility Bar (Language & Theme Only — No Edit Button for Customers) -->
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/75 dark:bg-slate-950/75 border-b border-slate-200/70 dark:border-slate-800/80">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-brand to-brand-light shadow-[0_0_10px_var(--brand-glow)] shrink-0"></span>
+        <span id="headerBrandTitle" class="font-bold text-sm sm:text-base truncate">دار النخبة للضيافة</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button
+          type="button"
+          onclick="toggleLanguage()"
+          title="تبديل اللغة العربية / الإنجليزية — Switch Language"
+          aria-label="تبديل اللغة"
+          class="tactile-btn btn-surface-lux px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-100"
+        >
+          <svg class="w-4 h-4 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span id="langBtnLabel">EN</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="toggleTheme()"
+          title="تبديل الوضع الليلي والنهاري — Toggle Theme"
+          aria-label="تبديل الوضع الليلي والنهاري"
+          class="tactile-btn btn-surface-lux p-2 rounded-xl text-slate-800 dark:text-slate-100"
+        >
+          <svg id="sunIcon" class="w-4 h-4 text-amber-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+          <svg id="moonIcon" class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Storefront & Bio-Link Container -->
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-20 space-y-6">
+
+    <!-- HERO IDENTITY CARD -->
+    <section
+      id="heroParallax"
+      class="tactile-card rounded-[2rem] p-6 sm:p-8 relative overflow-hidden reveal-item is-visible"
+    >
+      <div
+        class="w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none absolute -top-12 -end-12"
+        style="background: var(--brand-primary);"
+      ></div>
+
+      <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6">
+        <div class="relative shrink-0 animate-floatSlow">
+          <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1 bg-gradient-to-br from-brand-light via-brand to-brand-dark shadow-xl">
+            <img
+              id="heroAvatar"
+              src="https://placehold.co/240x240/1e293b/e6c483?text=ELITE"
+              alt="صورة المتجر أو صاحب المتجر"
+              onerror="this.src='https://placehold.co/240x240/1e293b/e6c483?text=ELITE';"
+              class="w-full h-full object-cover rounded-[20px] bg-slate-900"
+            />
+          </div>
+          <span
+            title="حساب ومتجر موثق — Verified Storefront"
+            class="absolute -bottom-1.5 -end-1.5 w-8 h-8 rounded-2xl bg-emerald-500 text-white border-2 border-white dark:border-slate-900 shadow-lg flex items-center justify-center"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </span>
+        </div>
+
+        <div class="flex-1 text-center sm:text-start space-y-2.5 min-w-0">
+          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+            <span
+              id="statusBadge"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+            >
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span id="statusBadgeText">مفتوح الآن • نستقبلكم</span>
+            </span>
+
+            <span
+              id="heroOwnerTag"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-brand-soft text-brand-dark dark:text-brand-light border border-brand/25"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span id="heroOwnerName">أ. طارق المنصور • المؤسس</span>
+            </span>
+          </div>
+
+          <h1 id="heroStoreName" class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            دار النخبة للضيافة والتميز
+          </h1>
+
+          <p id="heroSubtitle" class="text-sm sm:text-base font-semibold text-brand-dark dark:text-brand-light flex items-center justify-center sm:justify-start gap-1.5">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+            <span>تجربة متكاملة تجمع جودة المنتجات ودفء الاستقبال</span>
+          </p>
+
+          <p id="heroBio" class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            نرحب بكم في وجهتنا الرقمية المباشرة للوصول السريع إلى المنيو الكامل، وموقعنا على الخرائط، وجميع قنوات التواصل الفوري مع فريق المتجر.
+          </p>
+        </div>
+      </div>
+
+      <!-- PROMINENT MENU REDIRECT BANNER & QUICK ACTION STRIP -->
+      <div class="mt-6 pt-6 border-t border-slate-200/75 dark:border-slate-800/80 space-y-4">
+        <a
+          id="primaryMenuLink"
+          href="https://example.com/menu"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="الانتقال إلى صفحة المنيو الخارجية — Open External Menu Page"
+          class="tactile-btn btn-primary-lux w-full rounded-2xl px-5 py-4 text-white flex items-center justify-between gap-4 group"
+        >
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                <path d="M8 7h8M8 11h6" />
+              </svg>
+            </div>
+            <div class="text-start min-w-0">
+              <div id="menuBtnTitle" class="font-extrabold text-base sm:text-lg truncate">
+                أيقونة المنيو • الانتقال إلى صفحة المنيو
+              </div>
+              <div id="menuBtnSubtitle" class="text-xs text-white/90 truncate flex items-center gap-1">
+                <span>يفتح رابط المنيو المخصص مباشرة</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110">
+            <svg class="w-5 h-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </div>
+        </a>
+
+        <div id="quickIconsRow" class="grid grid-cols-5 gap-2 sm:gap-3">
+          <a
+            id="quickMenuIcon"
+            href="https://example.com/menu"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="المنيو الخارجي — External Menu"
+            class="tactile-btn btn-surface-lux rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center gap-1.5 text-center"
+          >
+            <span class="w-9 h-9 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate w-full" data-i18n="quickMenu">المنيو</span>
+          </a>
+
+          <a
+            id="quickMapIcon"
+            href="https://maps.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="الموقع على الخرائط — Google Maps Location"
+            class="tactile-btn btn-surface-lux rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center gap-1.5 text-center"
+          >
+            <span class="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate w-full" data-i18n="quickMap">الخرائط</span>
+          </a>
+
+          <a
+            id="quickWhatsappIcon"
+            href="https://wa.me/201000000000"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="مراسلة فورية عبر واتساب — Chat on WhatsApp"
+            class="tactile-btn btn-surface-lux rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center gap-1.5 text-center"
+          >
+            <span class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate w-full" data-i18n="quickWhatsapp">واتساب</span>
+          </a>
+
+          <a
+            id="quickPhoneIcon"
+            href="tel:+201000000000"
+            title="اتصال هاتفي مباشر — Direct Phone Call"
+            class="tactile-btn btn-surface-lux rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center gap-1.5 text-center"
+          >
+            <span class="w-9 h-9 rounded-xl bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate w-full" data-i18n="quickCall">اتصال</span>
+          </a>
+
+          <button
+            type="button"
+            onclick="copyShareLink()"
+            title="نسخ رابط الصفحة لمشاركته — Copy Page Link"
+            class="tactile-btn btn-surface-lux rounded-2xl p-2.5 sm:p-3 flex flex-col items-center justify-center gap-1.5 text-center"
+          >
+            <span class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </span>
+            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate w-full" data-i18n="quickCopy">نسخ الرابط</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION NAVIGATION PILLS -->
+    <nav aria-label="أقسام الصفحة" class="reveal-item">
+      <div class="tactile-card rounded-2xl p-1.5 grid grid-cols-3 gap-1.5">
+        <button
+          type="button"
+          data-tab="overview"
+          onclick="switchTab('overview')"
+          class="tab-btn tab-pill-active tactile-btn py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2"
+        >
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span data-i18n="tabOverview">الصفات والروابط</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="hours"
+          onclick="switchTab('hours')"
+          class="tab-btn tactile-btn py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 text-slate-700 dark:text-slate-200"
+        >
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          <span data-i18n="tabHours">أوقات العمل</span>
+        </button>
+
+        <button
+          type="button"
+          data-tab="social"
+          onclick="switchTab('social')"
+          class="tab-btn tactile-btn py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 text-slate-700 dark:text-slate-200"
+        >
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+          <span data-i18n="tabSocial">وسائل التواصل</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- TAB 1: TRAITS, EXTERNAL MENU CARD & LOCATION MAP -->
+    <div id="panel-overview" class="tab-panel space-y-6">
+      <section class="tactile-card rounded-[2rem] p-6 sm:p-7 space-y-4 reveal-item">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-9 h-9 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.9 5.8L20 10.7l-5.8 1.9L12 18.5l-1.9-5.9L4 10.7l5.8-1.9L12 3z" />
+              </svg>
+            </span>
+            <div>
+              <h2 id="traitsHeading" class="text-lg sm:text-xl font-extrabold">صفات ومميزات المتجر</h2>
+              <p id="traitsSubheading" class="text-xs text-slate-500 dark:text-slate-400">ما يميز تجربة التعامل معنا</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300" data-i18n="badgeQuality">
+            معايير عالية
+          </span>
+        </div>
+
+        <div id="traitsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+      </section>
+
+      <section class="tactile-card rounded-[2rem] p-6 sm:p-7 space-y-4 reveal-item">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-start sm:items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-light to-brand-dark text-white flex items-center justify-center shadow-lg shrink-0">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h2 id="menuCardTitle" class="text-lg font-extrabold">صفحة المنيو الكاملة</h2>
+              <p id="menuCardDesc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                اضغط للانتقال مباشرة إلى صفحة المنيو المخصصة واستعراض التفاصيل الكاملة.
+              </p>
+            </div>
+          </div>
+
+          <a
+            id="cardMenuRedirectBtn"
+            href="https://example.com/menu"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="tactile-btn btn-primary-lux px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold text-white inline-flex items-center justify-center gap-2 shrink-0"
+          >
+            <span data-i18n="goToMenu">فتح المنيو</span>
+            <svg class="w-4 h-4 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </a>
+        </div>
+      </section>
+
+      <section class="tactile-card rounded-[2rem] p-6 sm:p-7 space-y-4 reveal-item">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-start sm:items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" />
+                <line x1="16" y1="6" x2="16" y2="22" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h2 id="locationCardTitle" class="text-lg font-extrabold">موقع المتجر على الخرائط</h2>
+              <p id="locationAddressText" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                الحي الراقي • الشارع الرئيسي • بجوار المركز التجاري
+              </p>
+            </div>
+          </div>
+
+          <a
+            id="locationMapBtn"
+            href="https://maps.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="tactile-btn btn-surface-lux px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 inline-flex items-center justify-center gap-2 shrink-0"
+          >
+            <svg class="w-4 h-4 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span data-i18n="openMap">الاتجاهات في الخرائط</span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 2: WORKING HOURS -->
+    <div id="panel-hours" class="tab-panel hidden space-y-6">
+      <section class="tactile-card rounded-[2rem] p-6 sm:p-7 space-y-4 reveal-item is-visible">
+        <div class="flex items-center gap-2.5">
+          <span class="w-9 h-9 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold" data-i18n="hoursHeading">مواعيد وساعات العمل</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="hoursSubheading">نسعد بزيارتكم وتواصلكم خلال الأوقات التالية</p>
+          </div>
+        </div>
+
+        <div id="hoursList" class="divide-y divide-slate-200/70 dark:divide-slate-800/80"></div>
+      </section>
+    </div>
+
+    <!-- TAB 3: SOCIAL & CONTACT LINKS -->
+    <div id="panel-social" class="tab-panel hidden space-y-6">
+      <section class="tactile-card rounded-[2rem] p-6 sm:p-7 space-y-4 reveal-item is-visible">
+        <div class="flex items-center gap-2.5">
+          <span class="w-9 h-9 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light flex items-center justify-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold" data-i18n="socialHeading">وسائل التواصل والقنوات الرسمية</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400" data-i18n="socialSubheading">تواصل معنا مباشرة أو تابع جديدنا عبر المنصات التالية</p>
+          </div>
+        </div>
+
+        <div id="socialCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5"></div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification Banner -->
+  <div
+    id="toastBanner"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs sm:text-sm font-bold shadow-2xl border border-brand/40 flex items-center gap-2 opacity-0 translate-y-4 pointer-events-none transition-all duration-300"
+  >
+    <svg class="w-4 h-4 text-emerald-400 dark:text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+    <span id="toastMessage">تم النسخ بنجاح</span>
+  </div>
+
+  <script>
+const DB_URL = 'https://juice-9ad5a-default-rtdb.firebaseio.com';
+    const urlParams = new URLSearchParams(window.location.search);
+    const STORE_ID = (urlParams.get('store') || 'default').replace(/[^a-zA-Z0-9_-]/g, '');
+    const STOREFRONT_ENDPOINT = `${DB_URL}/stores/${STORE_ID}/storefront.json`;
+    const STORAGE_KEY = `lux_storefront_v2_${STORE_ID}`;
+
+    const DEFAULT_DATA = {
+      lang: 'ar',
+      theme: 'light',
+      isOpen: true,
+      fontAr: "'Cairo', sans-serif",
+      fontEn: "'Plus Jakarta Sans', sans-serif",
+      accent: {
+        primary: '#c89d54',
+        light: '#e6c483',
+        dark: '#9a7332',
+        soft: 'rgba(200, 157, 84, 0.14)',
+        glow: 'rgba(200, 157, 84, 0.35)',
+      },
+      avatar: 'https://placehold.co/240x240/1e293b/e6c483?text=ELITE',
+      storeNameAr: 'دار النخبة للضيافة والتميز',
+      storeNameEn: 'Al Nokhba Hospitality & Excellence',
+      ownerAr: 'أ. طارق المنصور • المؤسس',
+      ownerEn: 'Tariq Al-Mansoor • Founder',
+      subtitleAr: 'تجربة متكاملة تجمع جودة المنتجات ودفء الاستقبال',
+      subtitleEn: 'A refined experience uniting top quality and warm hospitality',
+      bioAr: 'نرحب بكم في وجهتنا الرقمية المباشرة للوصول السريع إلى المنيو الكامل، وموقعنا على الخرائط، وجميع قنوات التواصل الفوري مع فريق المتجر.',
+      bioEn: 'Welcome to our direct digital hub for instant access to our full menu, map directions, and fast communication with our team.',
+      welcomeAr: 'شرفٌ لنا حضوركم ويسعدنا استقبالكم — حيث تلتقي الفخامة بدفء الضيافة، نتمنى لكم تجربة استثنائية تليق بذائقتكم الرفيعة.',
+      welcomeEn: 'We are honored by your presence and delighted to welcome you — where luxury meets warm hospitality for an unforgettable experience.',
+      menuUrl: 'https://example.com/menu',
+      menuNewTab: true,
+      mapUrl: 'https://maps.google.com',
+      addressAr: 'الحي الراقي • الشارع الرئيسي • بجوار المركز التجاري',
+      addressEn: 'Upscale District • Main Boulevard • Next to City Center',
+      whatsapp: '201000000000',
+      phone: '+201000000000',
+      instagram: 'https://instagram.com',
+      tiktok: 'https://tiktok.com',
+      traits: [
+        {
+          icon: 'sparkle',
+          titleAr: 'جودة وعناية استثنائية',
+          titleEn: 'Exceptional Quality',
+          descAr: 'اهتمام دقيق بأدق التفاصيل لتقديم تجربة موثوقة ومميزة في كل زيارة.',
+          descEn: 'Careful attention to every detail for a reliable and elevated experience.',
+        },
+        {
+          icon: 'bolt',
+          titleAr: 'سرعة استجابة وتواصل',
+          titleEn: 'Fast & Direct Response',
+          descAr: 'تواصل فوري ومباشر مع إدارة المتجر عبر الواتساب والاتصال الهاتفي.',
+          descEn: 'Instant direct contact with store management via WhatsApp and phone.',
+        },
+        {
+          icon: 'shield',
+          titleAr: 'مصداقية وشفافية كاملة',
+          titleEn: 'Trusted & Transparent',
+          descAr: 'معلومات واضحة ومحدثة باستمرار حول المنيو والمواعيد والموقع.',
+          descEn: 'Clear, continuously updated details for menu, hours, and location.',
+        },
+        {
+          icon: 'heart',
+          titleAr: 'حفاوة استقبال واهتمام',
+          titleEn: 'Warm Hospitality',
+          descAr: 'نضع راحة عملائنا ورضاهم في مقدمة أولوياتنا دائماً.',
+          descEn: 'Putting guest comfort and satisfaction at the heart of everything we do.',
+        },
+      ],
+      hours: [
+        { dayAr: 'السبت — الأربعاء', dayEn: 'Sat — Wed', timeAr: '09:00 ص — 11:30 م', timeEn: '09:00 AM — 11:30 PM' },
+        { dayAr: 'الخميس', dayEn: 'Thursday', timeAr: '09:00 ص — 12:30 ص', timeEn: '09:00 AM — 12:30 AM' },
+        { dayAr: 'الجمعة', dayEn: 'Friday', timeAr: '01:00 م — 12:30 ص', timeEn: '01:00 PM — 12:30 AM' },
+      ],
+    };
+
+    const I18N = {
+      ar: {
+        quickMenu: 'المنيو',
+        quickMap: 'الخرائط',
+        quickWhatsapp: 'واتساب',
+        quickCall: 'اتصال',
+        quickCopy: 'نسخ الرابط',
+        tabOverview: 'الصفات والروابط',
+        tabHours: 'أوقات العمل',
+        tabSocial: 'وسائل التواصل',
+        badgeQuality: 'معايير عالية',
+        goToMenu: 'فتح المنيو',
+        openMap: 'الاتجاهات في الخرائط',
+        hoursHeading: 'مواعيد وساعات العمل',
+        hoursSubheading: 'نسعد بزيارتكم وتواصلكم خلال الأوقات التالية',
+        socialHeading: 'وسائل التواصل والقنوات الرسمية',
+        socialSubheading: 'تواصل معنا مباشرة أو تابع جديدنا عبر المنصات التالية',
+        openText: 'مفتوح الآن • نستقبلكم',
+        closedText: 'مغلق حالياً',
+        menuBtnTitle: 'أيقونة المنيو • الانتقال إلى صفحة المنيو',
+        menuBtnSubtitle: 'ينقلك مباشرة إلى صفحة المنيو الخارجية',
+        menuCardTitle: 'صفحة المنيو الكاملة',
+        menuCardDesc: 'اضغط للانتقال مباشرة إلى صفحة المنيو المخصصة واستعراض التفاصيل الكاملة.',
+        locationCardTitle: 'موقع المتجر على الخرائط',
+        traitsHeading: 'صفات ومميزات المتجر',
+        traitsSubheading: 'ما يميز تجربة التعامل معنا',
+        splashHint: 'جاري تهيئة الواجهة بأناقة...',
+        copiedMsg: 'تم نسخ رابط الصفحة بنجاح',
+      },
+      en: {
+        quickMenu: 'Menu',
+        quickMap: 'Maps',
+        quickWhatsapp: 'WhatsApp',
+        quickCall: 'Call',
+        quickCopy: 'Copy Link',
+        tabOverview: 'Traits & Links',
+        tabHours: 'Working Hours',
+        tabSocial: 'Social Channels',
+        badgeQuality: 'High Standards',
+        goToMenu: 'Open Menu',
+        openMap: 'Open in Maps',
+        hoursHeading: 'Working Hours',
+        hoursSubheading: 'We are delighted to welcome you during these hours',
+        socialHeading: 'Social & Direct Contact',
+        socialSubheading: 'Reach out directly or follow our official channels',
+        openText: 'Open Now • Welcoming Guests',
+        closedText: 'Currently Closed',
+        menuBtnTitle: 'Menu Icon • Go to External Menu Page',
+        menuBtnSubtitle: 'Takes you directly to the configured menu page',
+        menuCardTitle: 'Full Menu Page',
+        menuCardDesc: 'Tap to open the dedicated external menu page and explore full details.',
+        locationCardTitle: 'Store Location on Maps',
+        traitsHeading: 'Store Traits & Highlights',
+        traitsSubheading: 'What makes our experience stand out',
+        splashHint: 'Preparing your experience...',
+        copiedMsg: 'Page link copied to clipboard',
+      },
+    };
+
+    function normalizeData(rawObj) {
+      const base = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      if (!rawObj || typeof rawObj !== 'object') return base;
+      const traitsList = Array.isArray(rawObj.traits)
+        ? rawObj.traits.filter(Boolean)
+        : (rawObj.traits && typeof rawObj.traits === 'object' ? Object.values(rawObj.traits).filter(Boolean) : base.traits);
+      const hoursList = Array.isArray(rawObj.hours)
+        ? rawObj.hours.filter(Boolean)
+        : (rawObj.hours && typeof rawObj.hours === 'object' ? Object.values(rawObj.hours).filter(Boolean) : base.hours);
+
+      return {
+        ...base,
+        ...rawObj,
+        accent: {
+          ...base.accent,
+          ...(rawObj.accent && typeof rawObj.accent === 'object' ? rawObj.accent : {}),
+        },
+        traits: traitsList.length ? traitsList : base.traits,
+        hours: hoursList.length ? hoursList : base.hours,
+      };
+    }
+
+    function safeGetStorage(key) {
+      try { return window.localStorage.getItem(key); } catch (_) { return null; }
+    }
+
+    function safeSetStorage(key, val) {
+      try { window.localStorage.setItem(key, val); } catch (_) {}
+    }
+
+    let state = (() => {
+      try {
+        const cached = safeGetStorage(STORAGE_KEY);
+        return normalizeData(cached ? JSON.parse(cached) : null);
+      } catch (_) {
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    })();
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBanner');
+      const label = document.getElementById('toastMessage');
+      if (!toast || !label) return;
+      label.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function copyShareLink() {
+      const url = window.location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => showToast(I18N[state.lang].copiedMsg)).catch(() => fallbackCopy(url));
+      } else {
+        fallbackCopy(url);
+      }
+    }
+
+    function fallbackCopy(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (_) {}
+      showToast(I18N[state.lang].copiedMsg);
+    }
+
+    function getTraitIconSvg(iconKey) {
+      const icons = {
+        sparkle: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8L20 10.7l-5.8 1.9L12 18.5l-1.9-5.9L4 10.7l5.8-1.9L12 3z"/></svg>',
+        bolt: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        shield: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
+        heart: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      };
+      return icons[iconKey] || icons.sparkle;
+    }
+
+    function renderUI() {
+      const isAr = state.lang === 'ar';
+      const dict = I18N[state.lang];
+
+      document.documentElement.lang = state.lang;
+      document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+      document.getElementById('langBtnLabel').textContent = isAr ? 'EN' : 'عربي';
+
+      document.documentElement.style.setProperty('--font-ar', state.fontAr);
+      document.documentElement.style.setProperty('--font-en', state.fontEn);
+      document.documentElement.style.setProperty('--brand-primary', state.accent.primary);
+      document.documentElement.style.setProperty('--brand-light', state.accent.light);
+      document.documentElement.style.setProperty('--brand-dark', state.accent.dark);
+      document.documentElement.style.setProperty('--brand-soft', state.accent.soft);
+      document.documentElement.style.setProperty('--brand-glow', state.accent.glow);
+
+      const isDark = state.theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+      document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      const storeName = isAr ? state.storeNameAr : state.storeNameEn;
+      const ownerName = isAr ? state.ownerAr : state.ownerEn;
+      const subtitle = isAr ? state.subtitleAr : state.subtitleEn;
+      const bio = isAr ? state.bioAr : state.bioEn;
+      const welcomeMsg = isAr ? state.welcomeAr : state.welcomeEn;
+      const address = isAr ? state.addressAr : state.addressEn;
+
+      document.title = `${storeName} — ${isAr ? 'واجهة المتجر الرقمية' : 'Digital Storefront'}`;
+      document.getElementById('headerBrandTitle').textContent = storeName;
+      document.getElementById('splashStoreName').textContent = storeName;
+      document.getElementById('splashWelcomeText').textContent = welcomeMsg;
+      document.getElementById('splashHintText').textContent = dict.splashHint;
+
+      if (state.avatar) {
+        document.getElementById('heroAvatar').src = state.avatar;
+        document.getElementById('splashAvatar').src = state.avatar;
+      }
+
+      document.getElementById('heroOwnerName').textContent = ownerName;
+      document.getElementById('heroStoreName').textContent = storeName;
+      document.getElementById('heroSubtitle').querySelector('span').textContent = subtitle;
+      document.getElementById('heroBio').textContent = bio;
+
+      const badge = document.getElementById('statusBadge');
+      const badgeText = document.getElementById('statusBadgeText');
+      if (state.isOpen) {
+        badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30';
+        badgeText.textContent = dict.openText;
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30';
+        badgeText.textContent = dict.closedText;
+      }
+
+      const safeMenuUrl = (state.menuUrl || 'https://example.com/menu').trim();
+      const targetAttr = state.menuNewTab ? '_blank' : '_self';
+      const relAttr = state.menuNewTab ? 'noopener noreferrer' : '';
+
+      [document.getElementById('primaryMenuLink'), document.getElementById('quickMenuIcon'), document.getElementById('cardMenuRedirectBtn')].forEach((link) => {
+        if (!link) return;
+        link.href = safeMenuUrl;
+        link.target = targetAttr;
+        link.rel = relAttr;
+      });
+
+      document.getElementById('menuBtnTitle').textContent = dict.menuBtnTitle;
+      document.getElementById('menuBtnSubtitle').querySelector('span').textContent = dict.menuBtnSubtitle;
+      document.getElementById('menuCardTitle').textContent = dict.menuCardTitle;
+      document.getElementById('menuCardDesc').textContent = dict.menuCardDesc;
+      document.getElementById('locationCardTitle').textContent = dict.locationCardTitle;
+      document.getElementById('locationAddressText').textContent = address;
+      document.getElementById('traitsHeading').textContent = dict.traitsHeading;
+      document.getElementById('traitsSubheading').textContent = dict.traitsSubheading;
+
+      const cleanWa = (state.whatsapp || '').replace(/[^\d]/g, '');
+      document.getElementById('quickMapIcon').href = state.mapUrl || 'https://maps.google.com';
+      document.getElementById('locationMapBtn').href = state.mapUrl || 'https://maps.google.com';
+      document.getElementById('quickWhatsappIcon').href = cleanWa ? `https://wa.me/${cleanWa}` : 'https://whatsapp.com';
+      document.getElementById('quickPhoneIcon').href = `tel:${state.phone || '+201000000000'}`;
+
+      document.getElementById('traitsGrid').innerHTML = state.traits.map((t, idx) => `
+        <div
+          class="reveal-item is-visible rounded-2xl p-4 bg-white/70 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800/80 flex items-start gap-3.5"
+          style="--reveal-delay: ${idx * 70}ms;"
+        >
+          <span class="w-10 h-10 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light flex items-center justify-center shrink-0">
+            ${getTraitIconSvg(t.icon)}
+          </span>
+          <div class="space-y-1 min-w-0">
+            <h3 class="font-bold text-sm text-slate-900 dark:text-white">${isAr ? t.titleAr : t.titleEn}</h3>
+            <p class="text-xs leading-relaxed text-slate-600 dark:text-slate-300">${isAr ? t.descAr : t.descEn}</p>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('hoursList').innerHTML = state.hours.map((h) => `
+        <div class="py-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
+          <span class="font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100">
+            <span class="w-2 h-2 rounded-full bg-brand"></span>
+            ${isAr ? h.dayAr : h.dayEn}
+          </span>
+          <span class="font-semibold px-3 py-1 rounded-xl bg-brand-soft text-brand-dark dark:text-brand-light" dir="ltr">
+            ${isAr ? h.timeAr : h.timeEn}
+          </span>
+        </div>
+      `).join('');
+
+      const channels = [
+        {
+          name: isAr ? 'واتساب مباشر' : 'WhatsApp Direct',
+          sub: state.whatsapp || '+201000000000',
+          url: cleanWa ? `https://wa.me/${cleanWa}` : 'https://whatsapp.com',
+          badgeClass: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
+          icon: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+        },
+        {
+          name: isAr ? 'صفحة المنيو' : 'Menu Page',
+          sub: isAr ? 'فتح رابط المنيو الخارجي' : 'Open external menu link',
+          url: safeMenuUrl,
+          badgeClass: 'bg-brand-soft text-brand-dark dark:text-brand-light',
+          icon: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+        },
+        {
+          name: 'Instagram',
+          sub: isAr ? 'تابع أحدث الصور والعروض' : 'Latest photos & updates',
+          url: state.instagram || 'https://instagram.com',
+          badgeClass: 'bg-pink-500/15 text-pink-600 dark:text-pink-400',
+          icon: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
+        },
+        {
+          name: 'TikTok',
+          sub: isAr ? 'مقاطع مرئية قصيرة' : 'Short video highlights',
+          url: state.tiktok || 'https://tiktok.com',
+          badgeClass: 'bg-slate-900/10 dark:bg-white/10 text-slate-800 dark:text-slate-100',
+          icon: '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>',
+        },
+      ];
+
+      document.getElementById('socialCardsGrid').innerHTML = channels.map((c) => `
+        <a
+          href="${c.url}"
+          target="${targetAttr}"
+          rel="${relAttr}"
+          class="tactile-btn btn-surface-lux rounded-2xl p-4 flex items-center justify-between gap-3"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-10 h-10 rounded-xl ${c.badgeClass} flex items-center justify-center shrink-0">
+              ${c.icon}
+            </span>
+            <div class="min-w-0">
+              <div class="font-bold text-sm truncate">${c.name}</div>
+              <div class="text-xs text-slate-500 dark:text-slate-400 truncate" dir="ltr">${c.sub}</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 rtl:rotate-180 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      `).join('');
+
+      observeScrollReveals();
+    }
+
+    async function syncFromFirebase() {
+      try {
+        const res = await fetch(`${STOREFRONT_ENDPOINT}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const remoteData = await res.json();
+        if (remoteData && typeof remoteData === 'object') {
+          const prevLang = state.lang;
+          const prevTheme = state.theme;
+          state = normalizeData(remoteData);
+          if (!remoteData.lang) state.lang = prevLang;
+          if (!remoteData.theme) state.theme = prevTheme;
+          safeSetStorage(STORAGE_KEY, JSON.stringify(state));
+          renderUI();
+        }
+      } catch (_) {
+        // Fallback silently to cached/default data
+      }
+    }
+
+    function toggleLanguage() {
+      state.lang = state.lang === 'ar' ? 'en' : 'ar';
+      safeSetStorage(STORAGE_KEY, JSON.stringify(state));
+      renderUI();
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      safeSetStorage(STORAGE_KEY, JSON.stringify(state));
+      renderUI();
+    }
+
+    function switchTab(tabKey) {
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        const isSelected = btn.getAttribute('data-tab') === tabKey;
+        btn.classList.toggle('tab-pill-active', isSelected);
+        btn.classList.toggle('text-slate-700', !isSelected);
+        btn.classList.toggle('dark:text-slate-200', !isSelected);
+      });
+
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.id !== `panel-${tabKey}`);
+      });
+
+      observeScrollReveals();
+    }
+
+    function dismissSplash() {
+      const splash = document.getElementById('welcomeSplash');
+      if (splash) splash.classList.add('splash-hidden');
+    }
+
+    function initWelcomeSplash() {
+      setTimeout(dismissSplash, 2600);
+      setTimeout(dismissSplash, 5000);
+    }
+
+    function initScrollAndPointerEffects() {
+      const orbA = document.getElementById('parallaxOrbA');
+      const orbB = document.getElementById('parallaxOrbB');
+
+      function updateScroll() {
+        const doc = document.documentElement;
+        const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+        const pct = Math.min(100, Math.max(0, (window.scrollY / maxScroll) * 100));
+        doc.style.setProperty('--scroll-progress', `${pct.toFixed(1)}%`);
+
+        if (orbA) orbA.style.transform = `translate3d(0, ${(window.scrollY * 0.08).toFixed(1)}px, 0)`;
+        if (orbB) orbB.style.transform = `translate3d(0, ${(-window.scrollY * 0.06).toFixed(1)}px, 0)`;
+      }
+
+      window.addEventListener('scroll', updateScroll, { passive: true });
+      updateScroll();
+
+      function updatePointer(clientX, clientY) {
+        if (typeof clientX !== 'number' || typeof clientY !== 'number') return;
+        const xPct = ((clientX / Math.max(1, window.innerWidth)) * 100).toFixed(1);
+        const yPct = ((clientY / Math.max(1, window.innerHeight)) * 100).toFixed(1);
+        document.documentElement.style.setProperty('--pointer-x', `${xPct}%`);
+        document.documentElement.style.setProperty('--pointer-y', `${yPct}%`);
+      }
+
+      window.addEventListener('pointermove', (e) => updatePointer(e.clientX, e.clientY), { passive: true });
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+          updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+    }
+
+    let revealObserver = null;
+    function observeScrollReveals() {
+      const items = document.querySelectorAll('.reveal-item:not(.is-visible)');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach((el) => el.classList.add('is-visible'));
+        return;
+      }
+
+      if (!revealObserver) {
+        revealObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                revealObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -24px 0px' }
+        );
+      }
+
+      items.forEach((el) => revealObserver.observe(el));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderUI();
+      initWelcomeSplash();
+      initScrollAndPointerEffects();
+      observeScrollReveals();
+      syncFromFirebase();
+    });
+  </script>
+</body>
+</html>

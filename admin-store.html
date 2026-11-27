@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة إدارة المتجر والواجهة — Admin Storefront</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: 'var(--brand-primary, #c89d54)',
+              light: 'var(--brand-light, #e6c483)',
+              dark: 'var(--brand-dark, #9a7332)',
+              soft: 'var(--brand-soft, rgba(200, 157, 84, 0.14))',
+              glow: 'var(--brand-glow, rgba(200, 157, 84, 0.35))',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --brand-primary: #c89d54;
+      --brand-light: #e6c483;
+      --brand-dark: #9a7332;
+      --brand-soft: rgba(200, 157, 84, 0.14);
+      --brand-glow: rgba(200, 157, 84, 0.35);
+      --font-ar: 'Cairo', sans-serif;
+      --font-en: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-ar);
+      overflow-x: hidden;
+    }
+
+    .admin-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(203, 213, 225, 0.75);
+      box-shadow: 0 14px 34px -14px rgba(15, 23, 42, 0.1);
+    }
+
+    .dark .admin-card {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.65);
+    }
+
+    .btn-primary-lux {
+      background: linear-gradient(135deg, var(--brand-light) 0%, var(--brand-primary) 52%, var(--brand-dark) 100%);
+      box-shadow: 0 10px 24px -6px var(--brand-glow);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+        <div class="min-w-0">
+          <h1 class="font-extrabold text-sm sm:text-base truncate">لوحة إدارة الواجهة الرئيسية</h1>
+          <p id="syncStatusText" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">جاري الاتصال بقاعدة البيانات...</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a
+          id="previewStoreBtn"
+          href="index.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300/80 dark:hover:bg-slate-700 transition flex items-center gap-1.5"
+        >
+          <span>معاينة صفحة الزبائن</span>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
+
+        <button
+          type="button"
+          onclick="toggleTheme()"
+          aria-label="تبديل الوضع الليلي والنهاري"
+          class="p-2 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+        >
+          <svg id="sunIcon" class="w-4 h-4 text-amber-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+          <svg id="moonIcon" class="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 pb-28 space-y-6 text-sm">
+
+    <!-- 1. Identity & Welcome Message -->
+    <section class="admin-card rounded-3xl p-5 sm:p-6 space-y-4">
+      <h2 class="font-extrabold text-base sm:text-lg text-brand-dark dark:text-brand-light flex items-center gap-2">
+        <span>1. الهوية والرسالة الترحيبية</span>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">اسم المتجر (عربي)</label>
+          <input id="inpStoreNameAr" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Store Name (English)</label>
+          <input id="inpStoreNameEn" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">اسم المالك / الصفة (عربي)</label>
+          <input id="inpOwnerAr" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Owner / Role (English)</label>
+          <input id="inpOwnerEn" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">وصف مختصر (عربي)</label>
+          <input id="inpSubtitleAr" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Subtitle (English)</label>
+          <input id="inpSubtitleEn" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">رابط صورة المتجر أو الشعار</label>
+        <input id="inpAvatarUrl" type="url" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">نبذة المتجر (عربي)</label>
+          <textarea id="inpBioAr" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Store Bio (English)</label>
+          <textarea id="inpBioEn" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand"></textarea>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">رسالة الترحيب الافتتاحية (عربي)</label>
+          <textarea id="inpWelcomeAr" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Welcome Screen Message (English)</label>
+          <textarea id="inpWelcomeEn" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800">
+        <span class="text-xs font-extrabold">حالة المتجر للزبائن: مفتوح الآن</span>
+        <input id="inpIsOpen" type="checkbox" class="w-4 h-4 accent-amber-600 rounded" />
+      </div>
+    </section>
+
+    <!-- 2. Menu URL, Maps & Contact Links -->
+    <section class="admin-card rounded-3xl p-5 sm:p-6 space-y-4">
+      <h2 class="font-extrabold text-base sm:text-lg text-brand-dark dark:text-brand-light">2. رابط المنيو والخرائط والتواصل</h2>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">رابط صفحة المنيو (Menu URL)</label>
+        <input id="inpMenuUrl" type="url" placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+      </div>
+
+      <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800">
+        <span class="text-xs font-extrabold">فتح المنيو في تبويب جديد</span>
+        <input id="inpMenuNewTab" type="checkbox" class="w-4 h-4 accent-amber-600 rounded" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1">رابط الموقع على الخرائط (Google Maps URL)</label>
+        <input id="inpMapUrl" type="url" placeholder="https://maps.google.com/..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">العنوان المختصر (عربي)</label>
+          <input id="inpAddressAr" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Short Address (English)</label>
+          <input id="inpAddressEn" type="text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">رقم الواتساب (مع رمز الدولة)</label>
+          <input id="inpWhatsapp" type="text" placeholder="201000000000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">رقم الهاتف للاتصال</label>
+          <input id="inpPhone" type="text" placeholder="+201000000000" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">Instagram URL</label>
+          <input id="inpInstagram" type="url" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">TikTok URL</label>
+          <input id="inpTiktok" type="url" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Fonts & Accent Color -->
+    <section class="admin-card rounded-3xl p-5 sm:p-6 space-y-4">
+      <h2 class="font-extrabold text-base sm:text-lg text-brand-dark dark:text-brand-light">3. الخطوط والألوان</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="block text-xs font-bold mb-1">الخط العربي</label>
+          <select id="selFontAr" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand">
+            <option value="'Cairo', sans-serif">Cairo (كايرو)</option>
+            <option value="'Tajawal', sans-serif">Tajawal (تجوال)</option>
+            <option value="'Almarai', sans-serif">Almarai (المراعي)</option>
+            <option value="'Amiri', serif">Amiri (أميري)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-1">English Font</label>
+          <select id="selFontEn" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-brand">
+            <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+            <option value="'Playfair Display', serif">Playfair Display</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 flex-wrap pt-1">
+        <span class="text-xs font-bold">لون الهوية:</span>
+        <button type="button" onclick="applyAccentPreset('#c89d54', '#e6c483', '#9a7332')" class="w-8 h-8 rounded-full bg-[#c89d54]" title="ذهبي"></button>
+        <button type="button" onclick="applyAccentPreset('#0ea5e9', '#38bdf8', '#0284c7')" class="w-8 h-8 rounded-full bg-[#0ea5e9]" title="أزرق"></button>
+        <button type="button" onclick="applyAccentPreset('#10b981', '#34d399', '#059669')" class="w-8 h-8 rounded-full bg-[#10b981]" title="زمردي"></button>
+        <button type="button" onclick="applyAccentPreset('#e11d48', '#fb7185', '#be123c')" class="w-8 h-8 rounded-full bg-[#e11d48]" title="وردي"></button>
+        <button type="button" onclick="applyAccentPreset('#8b5cf6', '#a78bfa', '#6d28d9')" class="w-8 h-8 rounded-full bg-[#8b5cf6]" title="بنفسجي"></button>
+        <input id="inpCustomColor" type="color" value="#c89d54" oninput="applyCustomHex(this.value)" class="w-9 h-9 rounded-xl cursor-pointer bg-transparent border-0" />
+      </div>
+    </section>
+
+    <!-- 4. Traits Editor -->
+    <section class="admin-card rounded-3xl p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="font-extrabold text-base sm:text-lg text-brand-dark dark:text-brand-light">4. صفات ومميزات المتجر</h2>
+        <button type="button" onclick="addTraitItem()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-soft text-brand-dark dark:text-brand-light border border-brand/30">
+          + إضافة صفة
+        </button>
+      </div>
+      <div id="traitsEditorList" class="space-y-3"></div>
+    </section>
+
+  </main>
+
+  <!-- Sticky Bottom Action Bar -->
+  <div class="fixed bottom-0 inset-x-0 z-30 backdrop-blur-xl bg-white/90 dark:bg-slate-950/90 border-t border-slate-200 dark:border-slate-800 p-3.5">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+      <button
+        type="button"
+        onclick="resetToDefault()"
+        class="px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/25"
+      >
+        استعادة الافتراضي
+      </button>
+
+      <button
+        id="saveBtn"
+        type="button"
+        onclick="saveToFirebase()"
+        class="btn-primary-lux px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold text-white flex-1 max-w-xs"
+      >
+        حفظ ونشر في قاعدة البيانات
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div
+    id="toastBanner"
+    class="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs sm:text-sm font-bold shadow-2xl opacity-0 -translate-y-2 pointer-events-none transition-all duration-300"
+  >
+    <span id="toastMessage">تم الحفظ</span>
+  </div>
+
+  <script>
+    const DB_URL = 'https://juice-9ad5a-default-rtdb.firebaseio.com';
+    const urlParams = new URLSearchParams(window.location.search);
+    const STORE_ID = (urlParams.get('store') || 'default').replace(/[^a-zA-Z0-9_-]/g, '');
+    const STOREFRONT_ENDPOINT = `${DB_URL}/stores/${STORE_ID}/storefront.json`;
+    const STORAGE_KEY = `lux_storefront_v2_${STORE_ID}`;
+
+    const DEFAULT_DATA = {
+      lang: 'ar',
+      theme: 'light',
+      isOpen: true,
+      fontAr: "'Cairo', sans-serif",
+      fontEn: "'Plus Jakarta Sans', sans-serif",
+      accent: {
+        primary: '#c89d54',
+        light: '#e6c483',
+        dark: '#9a7332',
+        soft: 'rgba(200, 157, 84, 0.14)',
+        glow: 'rgba(200, 157, 84, 0.35)',
+      },
+      avatar: 'https://placehold.co/240x240/1e293b/e6c483?text=ELITE',
+      storeNameAr: 'دار النخبة للضيافة والتميز',
+      storeNameEn: 'Al Nokhba Hospitality & Excellence',
+      ownerAr: 'أ. طارق المنصور • المؤسس',
+      ownerEn: 'Tariq Al-Mansoor • Founder',
+      subtitleAr: 'تجربة متكاملة تجمع جودة المنتجات ودفء الاستقبال',
+      subtitleEn: 'A refined experience uniting top quality and warm hospitality',
+      bioAr: 'نرحب بكم في وجهتنا الرقمية المباشرة للوصول السريع إلى المنيو الكامل، وموقعنا على الخرائط، وجميع قنوات التواصل الفوري مع فريق المتجر.',
+      bioEn: 'Welcome to our direct digital hub for instant access to our full menu, map directions, and fast communication with our team.',
+      welcomeAr: 'شرفٌ لنا حضوركم ويسعدنا استقبالكم — حيث تلتقي الفخامة بدفء الضيافة، نتمنى لكم تجربة استثنائية تليق بذائقتكم الرفيعة.',
+      welcomeEn: 'We are honored by your presence and delighted to welcome you — where luxury meets warm hospitality for an unforgettable experience.',
+      menuUrl: 'https://example.com/menu',
+      menuNewTab: true,
+      mapUrl: 'https://maps.google.com',
+      addressAr: 'الحي الراقي • الشارع الرئيسي • بجوار المركز التجاري',
+      addressEn: 'Upscale District • Main Boulevard • Next to City Center',
+      whatsapp: '201000000000',
+      phone: '+201000000000',
+      instagram: 'https://instagram.com',
+      tiktok: 'https://tiktok.com',
+      traits: [
+        {
+          icon: 'sparkle',
+          titleAr: 'جودة وعناية استثنائية',
+          titleEn: 'Exceptional Quality',
+          descAr: 'اهتمام دقيق بأدق التفاصيل لتقديم تجربة موثوقة ومميزة في كل زيارة.',
+          descEn: 'Careful attention to every detail for a reliable and elevated experience.',
+        },
+        {
+          icon: 'bolt',
+          titleAr: 'سرعة استجابة وتواصل',
+          titleEn: 'Fast & Direct Response',
+          descAr: 'تواصل فوري ومباشر مع إدارة المتجر عبر الواتساب والاتصال الهاتفي.',
+          descEn: 'Instant direct contact with store management via WhatsApp and phone.',
+        },
+        {
+          icon: 'shield',
+          titleAr: 'مصداقية وشفافية كاملة',
+          titleEn: 'Trusted & Transparent',
+          descAr: 'معلومات واضحة ومحدثة باستمرار حول المنيو والمواعيد والموقع.',
+          descEn: 'Clear, continuously updated details for menu, hours, and location.',
+        },
+        {
+          icon: 'heart',
+          titleAr: 'حفاوة استقبال واهتمام',
+          titleEn: 'Warm Hospitality',
+          descAr: 'نضع راحة عملائنا ورضاهم في مقدمة أولوياتنا دائماً.',
+          descEn: 'Putting guest comfort and satisfaction at the heart of everything we do.',
+        },
+      ],
+      hours: [
+        { dayAr: 'السبت — الأربعاء', dayEn: 'Sat — Wed', timeAr: '09:00 ص — 11:30 م', timeEn: '09:00 AM — 11:30 PM' },
+        { dayAr: 'الخميس', dayEn: 'Thursday', timeAr: '09:00 ص — 12:30 ص', timeEn: '09:00 AM — 12:30 AM' },
+        { dayAr: 'الجمعة', dayEn: 'Friday', timeAr: '01:00 م — 12:30 ص', timeEn: '01:00 PM — 12:30 AM' },
+      ],
+    };
+
+    function normalizeData(rawObj) {
+      const base = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      if (!rawObj || typeof rawObj !== 'object') return base;
+      const traitsList = Array.isArray(rawObj.traits)
+        ? rawObj.traits.filter(Boolean)
+        : (rawObj.traits && typeof rawObj.traits === 'object' ? Object.values(rawObj.traits).filter(Boolean) : base.traits);
+      const hoursList = Array.isArray(rawObj.hours)
+        ? rawObj.hours.filter(Boolean)
+        : (rawObj.hours && typeof rawObj.hours === 'object' ? Object.values(rawObj.hours).filter(Boolean) : base.hours);
+
+      return {
+        ...base,
+        ...rawObj,
+        accent: {
+          ...base.accent,
+          ...(rawObj.accent && typeof rawObj.accent === 'object' ? rawObj.accent : {}),
+        },
+        traits: traitsList.length ? traitsList : base.traits,
+        hours: hoursList.length ? hoursList : base.hours,
+      };
+    }
+
+    let state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBanner');
+      const label = document.getElementById('toastMessage');
+      if (!toast || !label) return;
+      label.textContent = msg;
+      toast.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+      }, 2600);
+    }
+
+    function applyThemeUI() {
+      const isDark = state.theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+      document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+      document.documentElement.style.setProperty('--brand-primary', state.accent.primary);
+      document.documentElement.style.setProperty('--brand-light', state.accent.light);
+      document.documentElement.style.setProperty('--brand-dark', state.accent.dark);
+      document.documentElement.style.setProperty('--brand-soft', state.accent.soft);
+      document.documentElement.style.setProperty('--brand-glow', state.accent.glow);
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      applyThemeUI();
+    }
+
+    function populateInputs() {
+      document.getElementById('inpStoreNameAr').value = state.storeNameAr;
+      document.getElementById('inpStoreNameEn').value = state.storeNameEn;
+      document.getElementById('inpOwnerAr').value = state.ownerAr;
+      document.getElementById('inpOwnerEn').value = state.ownerEn;
+      document.getElementById('inpSubtitleAr').value = state.subtitleAr;
+      document.getElementById('inpSubtitleEn').value = state.subtitleEn;
+      document.getElementById('inpAvatarUrl').value = state.avatar;
+      document.getElementById('inpBioAr').value = state.bioAr;
+      document.getElementById('inpBioEn').value = state.bioEn;
+      document.getElementById('inpWelcomeAr').value = state.welcomeAr;
+      document.getElementById('inpWelcomeEn').value = state.welcomeEn;
+      document.getElementById('inpIsOpen').checked = Boolean(state.isOpen);
+
+      document.getElementById('inpMenuUrl').value = state.menuUrl;
+      document.getElementById('inpMenuNewTab').checked = Boolean(state.menuNewTab);
+      document.getElementById('inpMapUrl').value = state.mapUrl;
+      document.getElementById('inpAddressAr').value = state.addressAr;
+      document.getElementById('inpAddressEn').value = state.addressEn;
+      document.getElementById('inpWhatsapp').value = state.whatsapp;
+      document.getElementById('inpPhone').value = state.phone;
+      document.getElementById('inpInstagram').value = state.instagram;
+      document.getElementById('inpTiktok').value = state.tiktok;
+
+      document.getElementById('selFontAr').value = state.fontAr;
+      document.getElementById('selFontEn').value = state.fontEn;
+      document.getElementById('inpCustomColor').value = state.accent.primary;
+
+      applyThemeUI();
+      renderTraitsEditor();
+    }
+
+    function escapeAttr(val) {
+      return String(val || '').replace(/"/g, '&quot;');
+    }
+
+    function renderTraitsEditor() {
+      const list = document.getElementById('traitsEditorList');
+      list.innerHTML = state.traits.map((t, idx) => `
+        <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800 space-y-2.5 border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between gap-2">
+            <select onchange="updateTraitField(${idx}, 'icon', this.value)" class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 text-xs border border-slate-200 dark:border-slate-700">
+              <option value="sparkle" ${t.icon === 'sparkle' ? 'selected' : ''}>Sparkle</option>
+              <option value="bolt" ${t.icon === 'bolt' ? 'selected' : ''}>Bolt</option>
+              <option value="shield" ${t.icon === 'shield' ? 'selected' : ''}>Shield</option>
+              <option value="heart" ${t.icon === 'heart' ? 'selected' : ''}>Heart</option>
+            </select>
+            ${state.traits.length > 1 ? `
+              <button type="button" onclick="removeTraitItem(${idx})" class="text-xs font-bold text-rose-600 dark:text-rose-400">حذف</button>
+            ` : ''}
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text" value="${escapeAttr(t.titleAr)}" oninput="updateTraitField(${idx}, 'titleAr', this.value)" placeholder="العنوان (عربي)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-xs border border-slate-200 dark:border-slate-700" />
+            <input type="text" value="${escapeAttr(t.titleEn)}" oninput="updateTraitField(${idx}, 'titleEn', this.value)" placeholder="Title (EN)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-xs border border-slate-200 dark:border-slate-700" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <input type="text" value="${escapeAttr(t.descAr)}" oninput="updateTraitField(${idx}, 'descAr', this.value)" placeholder="الوصف (عربي)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-xs border border-slate-200 dark:border-slate-700" />
+            <input type="text" value="${escapeAttr(t.descEn)}" oninput="updateTraitField(${idx}, 'descEn', this.value)" placeholder="Description (EN)" class="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-xs border border-slate-200 dark:border-slate-700" />
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateTraitField(idx, field, value) {
+      if (state.traits[idx]) state.traits[idx][field] = value;
+    }
+
+    function addTraitItem() {
+      state.traits.push({
+        icon: 'sparkle',
+        titleAr: 'ميزة جديدة',
+        titleEn: 'New Highlight',
+        descAr: 'وصف مختصر للميزة الجديدة.',
+        descEn: 'Short description for the new highlight.',
+      });
+      renderTraitsEditor();
+    }
+
+    function removeTraitItem(idx) {
+      if (state.traits.length <= 1) return;
+      state.traits.splice(idx, 1);
+      renderTraitsEditor();
+    }
+
+    function hexToRgba(hex, alpha) {
+      const clean = (hex || '#c89d54').replace('#', '');
+      if (clean.length !== 6) return `rgba(200, 157, 84, ${alpha})`;
+      const r = parseInt(clean.slice(0, 2), 16);
+      const g = parseInt(clean.slice(2, 4), 16);
+      const b = parseInt(clean.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function applyAccentPreset(primary, light, dark) {
+      state.accent = {
+        primary,
+        light,
+        dark,
+        soft: hexToRgba(primary, 0.14),
+        glow: hexToRgba(primary, 0.35),
+      };
+      document.getElementById('inpCustomColor').value = primary;
+      applyThemeUI();
+    }
+
+    function applyCustomHex(hex) {
+      applyAccentPreset(hex, hex, hex);
+    }
+
+    function collectInputsIntoState() {
+      state.storeNameAr = document.getElementById('inpStoreNameAr').value.trim() || DEFAULT_DATA.storeNameAr;
+      state.storeNameEn = document.getElementById('inpStoreNameEn').value.trim() || DEFAULT_DATA.storeNameEn;
+      state.ownerAr = document.getElementById('inpOwnerAr').value.trim() || DEFAULT_DATA.ownerAr;
+      state.ownerEn = document.getElementById('inpOwnerEn').value.trim() || DEFAULT_DATA.ownerEn;
+      state.subtitleAr = document.getElementById('inpSubtitleAr').value.trim() || DEFAULT_DATA.subtitleAr;
+      state.subtitleEn = document.getElementById('inpSubtitleEn').value.trim() || DEFAULT_DATA.subtitleEn;
+      state.avatar = document.getElementById('inpAvatarUrl').value.trim() || DEFAULT_DATA.avatar;
+      state.bioAr = document.getElementById('inpBioAr').value.trim() || DEFAULT_DATA.bioAr;
+      state.bioEn = document.getElementById('inpBioEn').value.trim() || DEFAULT_DATA.bioEn;
+      state.welcomeAr = document.getElementById('inpWelcomeAr').value.trim() || DEFAULT_DATA.welcomeAr;
+      state.welcomeEn = document.getElementById('inpWelcomeEn').value.trim() || DEFAULT_DATA.welcomeEn;
+      state.isOpen = document.getElementById('inpIsOpen').checked;
+
+      state.menuUrl = document.getElementById('inpMenuUrl').value.trim() || DEFAULT_DATA.menuUrl;
+      state.menuNewTab = document.getElementById('inpMenuNewTab').checked;
+      state.mapUrl = document.getElementById('inpMapUrl').value.trim() || DEFAULT_DATA.mapUrl;
+      state.addressAr = document.getElementById('inpAddressAr').value.trim() || DEFAULT_DATA.addressAr;
+      state.addressEn = document.getElementById('inpAddressEn').value.trim() || DEFAULT_DATA.addressEn;
+      state.whatsapp = document.getElementById('inpWhatsapp').value.trim() || DEFAULT_DATA.whatsapp;
+      state.phone = document.getElementById('inpPhone').value.trim() || DEFAULT_DATA.phone;
+      state.instagram = document.getElementById('inpInstagram').value.trim() || DEFAULT_DATA.instagram;
+      state.tiktok = document.getElementById('inpTiktok').value.trim() || DEFAULT_DATA.tiktok;
+
+      state.fontAr = document.getElementById('selFontAr').value;
+      state.fontEn = document.getElementById('selFontEn').value;
+      state.updatedAt = Date.now();
+    }
+
+    async function loadFromFirebase() {
+      const statusEl = document.getElementById('syncStatusText');
+      try {
+        const res = await fetch(`${STOREFRONT_ENDPOINT}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP');
+        const remote = await res.json();
+        if (remote && typeof remote === 'object') {
+          state = normalizeData(remote);
+          statusEl.textContent = 'متصل بـ Firebase Realtime Database';
+        } else {
+          statusEl.textContent = 'متصل بـ Firebase (جاهز لأول حفظ)';
+        }
+      } catch (_) {
+        try {
+          const cached = window.localStorage.getItem(STORAGE_KEY);
+          if (cached) state = normalizeData(JSON.parse(cached));
+        } catch (_) {}
+        statusEl.textContent = 'وضع محلي — تأكد من الاتصال بالإنترنت';
+      }
+      populateInputs(document.getElementById('previewStoreBtn').href = `index.html?store=${encodeURIComponent(STORE_ID)}`;);
+    }
+
+    async function saveToFirebase() {
+      const btn = document.getElementById('saveBtn');
+      const statusEl = document.getElementById('syncStatusText');
+      collectInputsIntoState();
+
+      btn.disabled = true;
+      btn.textContent = 'جاري الحفظ...';
+
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (_) {}
+
+      try {
+        const res = await fetch(STOREFRONT_ENDPOINT, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state),
+        });
+        if (!res.ok) throw new Error('Save failed');
+        statusEl.textContent = 'تم الحفظ والمزامنة مع صفحة الزبائن';
+        showToast('تم حفظ وتطبيق التعديلات بنجاح');
+      } catch (_) {
+        statusEl.textContent = 'تعذر الحفظ السحابي — تحقق من الاتصال';
+        showToast('تعذر الاتصال بقاعدة البيانات');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'حفظ ونشر في قاعدة البيانات';
+      }
+    }
+
+    async function resetToDefault() {
+      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      populateInputs();
+      await saveToFirebase();
+      showToast('تمت استعادة الإعدادات الافتراضية');
+    }
+
+const ADMIN_PASS = '1234'; // <-- اكتب هنا كلمة المرور الخاصة بك
+
+window.addEventListener('DOMContentLoaded', () => {
+  const entered = prompt(`أدخل كلمة مرور الإدارة للمتجر (${STORE_ID}):`);
+  if (entered !== ADMIN_PASS) {
+    document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:Cairo,sans-serif;font-weight:bold;font-size:18px;color:#e11d48;">كلمة المرور غير صحيحة — تم رفض الوصول</div>';
+    return;
+  }
+  populateInputs();
+  loadFromFirebase();
+});
+  </script>
+</body>
+</html>
