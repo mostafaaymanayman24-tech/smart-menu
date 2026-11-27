@@ -76,7 +76,7 @@
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
         <div class="min-w-0">
-          <h1 class="font-extrabold text-sm sm:text-base truncate">لوحة إدارة الواجهة الرئيسية</h1>
+          <h1 class="font-extrabold text-sm sm:text-base truncate">لوحة إدارة الواجهة الرئيسية (<span id="storeBadge">bontree-coffee</span>)</h1>
           <p id="syncStatusText" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">جاري الاتصال بقاعدة البيانات...</p>
         </div>
       </div>
@@ -84,7 +84,7 @@
       <div class="flex items-center gap-2">
         <a
           id="previewStoreBtn"
-          href="index.html"
+          href="index.html?store=bontree-coffee"
           target="_blank"
           rel="noopener noreferrer"
           class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300/80 dark:hover:bg-slate-700 transition flex items-center gap-1.5"
@@ -323,7 +323,7 @@
   <script>
     const DB_URL = 'https://smart-menu-db-272bc-default-rtdb.asia-southeast1.firebasedatabase.app';
     const urlParams = new URLSearchParams(window.location.search);
-    const STORE_ID = (urlParams.get('store') || 'default').replace(/[^a-zA-Z0-9_-]/g, '');
+    const STORE_ID = (urlParams.get('store') || 'bontree-coffee').replace(/[^a-zA-Z0-9_-]/g, '');
     const STOREFRONT_ENDPOINT = `${DB_URL}/stores/${STORE_ID}/storefront.json`;
     const STORAGE_KEY = `lux_storefront_v2_${STORE_ID}`;
 
@@ -340,22 +340,22 @@
         soft: 'rgba(200, 157, 84, 0.14)',
         glow: 'rgba(200, 157, 84, 0.35)',
       },
-      avatar: 'https://placehold.co/240x240/1e293b/e6c483?text=ELITE',
-      storeNameAr: 'دار النخبة للضيافة والتميز',
-      storeNameEn: 'Al Nokhba Hospitality & Excellence',
-      ownerAr: 'أ. طارق المنصور • المؤسس',
-      ownerEn: 'Tariq Al-Mansoor • Founder',
-      subtitleAr: 'تجربة متكاملة تجمع جودة المنتجات ودفء الاستقبال',
-      subtitleEn: 'A refined experience uniting top quality and warm hospitality',
+      avatar: 'https://placehold.co/240x240/1e293b/e6c483?text=BONTREE',
+      storeNameAr: 'بون تري للقهوة المختصة — BONTREE',
+      storeNameEn: 'BONTREE Speciality Coffee',
+      ownerAr: 'BONTREE • قهوة مختصة',
+      ownerEn: 'BONTREE • Speciality Coffee',
+      subtitleAr: 'تجربة قهوة مختصة تجمع جودة التحميص ودفء الاستقبال',
+      subtitleEn: 'A speciality coffee experience uniting craft roasting and warm hospitality',
       bioAr: 'نرحب بكم في وجهتنا الرقمية المباشرة للوصول السريع إلى المنيو الكامل، وموقعنا على الخرائط، وجميع قنوات التواصل الفوري مع فريق المتجر.',
       bioEn: 'Welcome to our direct digital hub for instant access to our full menu, map directions, and fast communication with our team.',
-      welcomeAr: 'شرفٌ لنا حضوركم ويسعدنا استقبالكم — حيث تلتقي الفخامة بدفء الضيافة، نتمنى لكم تجربة استثنائية تليق بذائقتكم الرفيعة.',
-      welcomeEn: 'We are honored by your presence and delighted to welcome you — where luxury meets warm hospitality for an unforgettable experience.',
+      welcomeAr: 'شرفٌ لنا حضوركم ويسعدنا استقبالكم — نتمنى لكم تجربة قهوة استثنائية تليق بذائقتكم الرفيعة.',
+      welcomeEn: 'We are honored by your presence and delighted to welcome you for an unforgettable coffee experience.',
       menuUrl: 'https://example.com/menu',
       menuNewTab: true,
       mapUrl: 'https://maps.google.com',
-      addressAr: 'الحي الراقي • الشارع الرئيسي • بجوار المركز التجاري',
-      addressEn: 'Upscale District • Main Boulevard • Next to City Center',
+      addressAr: 'العنوان • الشارع الرئيسي',
+      addressEn: 'Main Boulevard',
       whatsapp: '201000000000',
       phone: '+201000000000',
       instagram: 'https://instagram.com',
@@ -592,9 +592,11 @@
 
     async function loadFromFirebase() {
       const statusEl = document.getElementById('syncStatusText');
+      document.getElementById('previewStoreBtn').href = `index.html?store=${encodeURIComponent(STORE_ID)}`;
+      document.getElementById('storeBadge').textContent = STORE_ID;
       try {
         const res = await fetch(`${STOREFRONT_ENDPOINT}?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const remote = await res.json();
         if (remote && typeof remote === 'object') {
           state = normalizeData(remote);
@@ -602,14 +604,14 @@
         } else {
           statusEl.textContent = 'متصل بـ Firebase (جاهز لأول حفظ)';
         }
-      } catch (_) {
+      } catch (err) {
         try {
           const cached = window.localStorage.getItem(STORAGE_KEY);
           if (cached) state = normalizeData(JSON.parse(cached));
         } catch (_) {}
-        statusEl.textContent = 'وضع محلي — تأكد من الاتصال بالإنترنت';
+        statusEl.textContent = `تعذر الاتصال بـ Firebase (${err.message})`;
       }
-      populateInputs(document.getElementById('previewStoreBtn').href = `index.html?store=${encodeURIComponent(STORE_ID)}`;);
+      populateInputs();
     }
 
     async function saveToFirebase() {
@@ -630,12 +632,12 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(state),
         });
-        if (!res.ok) throw new Error('Save failed');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         statusEl.textContent = 'تم الحفظ والمزامنة مع صفحة الزبائن';
         showToast('تم حفظ وتطبيق التعديلات بنجاح');
-      } catch (_) {
-        statusEl.textContent = 'تعذر الحفظ السحابي — تحقق من الاتصال';
-        showToast('تعذر الاتصال بقاعدة البيانات');
+      } catch (err) {
+        statusEl.textContent = `تعذر الحفظ السحابي (${err.message})`;
+        showToast('تعذر الاتصال بقاعدة البيانات — تأكد من تفعيل Rules');
       } finally {
         btn.disabled = false;
         btn.textContent = 'حفظ ونشر في قاعدة البيانات';
@@ -649,17 +651,17 @@
       showToast('تمت استعادة الإعدادات الافتراضية');
     }
 
-const ADMIN_PASS = '1234'; // <-- اكتب هنا كلمة المرور الخاصة بك
+    const ADMIN_PASS = '1234';
 
-window.addEventListener('DOMContentLoaded', () => {
-  const entered = prompt(`أدخل كلمة مرور الإدارة للمتجر (${STORE_ID}):`);
-  if (entered !== ADMIN_PASS) {
-    document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:Cairo,sans-serif;font-weight:bold;font-size:18px;color:#e11d48;">كلمة المرور غير صحيحة — تم رفض الوصول</div>';
-    return;
-  }
-  populateInputs();
-  loadFromFirebase();
-});
+    window.addEventListener('DOMContentLoaded', () => {
+      const entered = prompt(`أدخل كلمة مرور الإدارة للمتجر (${STORE_ID}):`);
+      if (entered !== ADMIN_PASS) {
+        document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:Cairo,sans-serif;font-weight:bold;font-size:18px;color:#e11d48;">كلمة المرور غير صحيحة — تم رفض الوصول</div>';
+        return;
+      }
+      populateInputs();
+      loadFromFirebase();
+    });
   </script>
 </body>
 </html>
